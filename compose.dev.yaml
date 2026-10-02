@@ -1,0 +1,13 @@
+services:
+  db:
+    ports:
+    - "127.0.0.1:5435:5432"
+  app:
+    ports:
+    - "127.0.0.1:8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+secrets:
+  db_password:
+    file: ./secrets/dev_db_password.txt

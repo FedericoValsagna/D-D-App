@@ -1,0 +1,6 @@
+secrets/
+.git
+.gradle
+build/
+.idea
+*.env

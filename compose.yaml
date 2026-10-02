@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    mem_limit: 1g
+    cpus: 1.0
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U app -d app
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/app
+      DB_USER: app
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75"
+    secrets:
+      - db_password
+    networks:
+      - backend
+    mem_limit: 1g
+    cpus: 1.5
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - "-fsS"
+        - "http://localhost:8080/actuator/health"
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+
+networks:
+  backend:
+
+volumes:
+  db_data:
