@@ -1,3 +1,5 @@
+name: dydapp
+
 services:
   db:
     image: postgres:16
@@ -36,6 +38,9 @@ services:
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75"
     secrets:
       - db_password
+    # Solo en localhost: al tailnet se expone con `tailscale serve` (ver CLAUDE.md), nunca en 0.0.0.0.
+    ports:
+      - "127.0.0.1:8080:8080"
     networks:
       - backend
     mem_limit: 1g
@@ -62,3 +67,7 @@ networks:
 
 volumes:
   db_data:
+
+secrets:
+  db_password:
+    file: ./secrets/prod_db_password.txt

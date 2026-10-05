@@ -1,0 +1,46 @@
+package com.valsagnapp.dydapp.adapter.outbound.persistence
+
+import com.valsagnapp.dydapp.TestcontainersConfiguration
+import com.valsagnapp.dydapp.domain.CharacterId
+import com.valsagnapp.dydapp.domain.abilityScores
+import com.valsagnapp.dydapp.domain.character
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
+import org.springframework.context.annotation.Import
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(TestcontainersConfiguration::class, CharacterPersistenceAdapter::class)
+class CharacterPersistenceAdapterTest {
+    @Autowired
+    lateinit var adapter: CharacterPersistenceAdapter
+
+    @Test
+    fun `saves and loads a character`() {
+        val character = character(
+            name = "Ember",
+            level = 7,
+            abilityScores = abilityScores(
+                strength = 8,
+                dexterity = 18,
+                constitution = 12,
+                intelligence = 14,
+                wisdom = 16,
+                charisma = 9,
+            ),
+        )
+
+        adapter.save(character)
+
+        assertEquals(character, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `returns null when the character does not exist`() {
+        assertNull(adapter.findById(CharacterId.new()))
+    }
+}

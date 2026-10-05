@@ -1,11 +1,11 @@
-package com.example.miapp
+package com.valsagnapp.dydapp
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class MiappApplication
+class DydAppApplication
 
 fun main(args: Array<String>) {
-	runApplication<MiappApplication>(*args)
+    runApplication<DydAppApplication>(*args)
 }
