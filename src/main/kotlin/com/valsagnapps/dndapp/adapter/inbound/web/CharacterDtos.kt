@@ -4,6 +4,9 @@ import com.valsagnapps.dndapp.application.port.inbound.CreateCharacterCommand
 import com.valsagnapps.dndapp.domain.Ability
 import com.valsagnapps.dndapp.domain.AbilityScores
 import com.valsagnapps.dndapp.domain.Character
+import com.valsagnapps.dndapp.domain.Proficiency
+import com.valsagnapps.dndapp.domain.Skill
+import com.valsagnapps.dndapp.domain.SkillProficiencies
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -20,8 +23,20 @@ data class CreateCharacterRequest(
     @field:NotBlank @field:Size(max = Character.MAX_NAME_LENGTH) val name: String,
     @field:Min(MIN_LEVEL) @field:Max(MAX_LEVEL) val level: Int,
     @field:Valid val abilityScores: AbilityScoresDto,
+    // Skills que no vienen quedan sin competencia (NONE).
+    val skills: Map<Skill, Proficiency> = emptyMap(),
 ) {
-    fun toCommand() = CreateCharacterCommand(name = name, level = level, abilityScores = abilityScores.toDomain())
+    fun toCommand() = CreateCharacterCommand(
+        name = name,
+        level = level,
+        abilityScores = abilityScores.toDomain(),
+        skillProficiencies = SkillProficiencies.of(skills),
+    )
+}
+
+// Reemplaza todas las competencias: las skills que no vienen quedan en NONE.
+data class UpdateSkillsRequest(val skills: Map<Skill, Proficiency>) {
+    fun toDomain() = SkillProficiencies.of(skills)
 }
 
 data class AbilityScoresDto(
@@ -37,12 +52,16 @@ data class AbilityScoresDto(
 
 data class AbilityResponse(val score: Int, val modifier: Int)
 
+data class SkillResponse(val ability: Ability, val proficiency: Proficiency, val bonus: Int)
+
 data class CharacterResponse(
     val id: UUID,
     val name: String,
     val level: Int,
     val proficiencyBonus: Int,
     val abilities: Map<Ability, AbilityResponse>,
+    val skills: Map<Skill, SkillResponse>,
+    val passivePerception: Int,
 ) {
     companion object {
         fun from(character: Character) = CharacterResponse(
@@ -56,6 +75,14 @@ data class CharacterResponse(
                     modifier = character.abilityScores.modifierOf(it),
                 )
             },
+            skills = Skill.entries.associateWith {
+                SkillResponse(
+                    ability = it.ability,
+                    proficiency = character.skillProficiencies.of(it),
+                    bonus = character.skillBonus(it),
+                )
+            },
+            passivePerception = character.passivePerception,
         )
     }
 }

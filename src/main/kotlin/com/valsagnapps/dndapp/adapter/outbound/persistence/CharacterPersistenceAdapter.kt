@@ -4,6 +4,7 @@ import com.valsagnapps.dndapp.application.port.outbound.CharacterRepository
 import com.valsagnapps.dndapp.domain.AbilityScores
 import com.valsagnapps.dndapp.domain.Character
 import com.valsagnapps.dndapp.domain.CharacterId
+import com.valsagnapps.dndapp.domain.SkillProficiencies
 import org.springframework.stereotype.Component
 
 @Component
@@ -25,6 +26,7 @@ private fun Character.toEntity() = CharacterEntity(
     intelligence = abilityScores.intelligence,
     wisdom = abilityScores.wisdom,
     charisma = abilityScores.charisma,
+    skills = skillProficiencies.toMap().toMutableMap(),
 )
 
 private fun CharacterEntity.toDomain() = Character(
@@ -32,4 +34,5 @@ private fun CharacterEntity.toDomain() = Character(
     name = name,
     level = level,
     abilityScores = AbilityScores(strength, dexterity, constitution, intelligence, wisdom, charisma),
+    skillProficiencies = SkillProficiencies.of(skills),
 )

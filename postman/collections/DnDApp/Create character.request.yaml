@@ -17,6 +17,10 @@ body:
         "intelligence": 10,
         "wisdom": 13,
         "charisma": 8
+      },
+      "skills": {
+        "ATHLETICS": "PROFICIENT",
+        "PERCEPTION": "EXPERTISE"
       }
     }
 scripts:
@@ -30,5 +34,8 @@ scripts:
         pm.response.to.have.status(201);
         pm.expect(body.proficiencyBonus).to.equal(3);
         pm.expect(body.abilities.STRENGTH.modifier).to.equal(3);
+        pm.expect(body.skills.ATHLETICS.bonus).to.equal(6);
+        pm.expect(body.skills.PERCEPTION.bonus).to.equal(7);
+        pm.expect(body.passivePerception).to.equal(17);
       });
 order: 20

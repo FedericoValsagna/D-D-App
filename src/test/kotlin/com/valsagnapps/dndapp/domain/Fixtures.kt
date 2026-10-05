@@ -14,4 +14,5 @@ fun character(
     name: String = "Tordek",
     level: Int = 1,
     abilityScores: AbilityScores = abilityScores(),
-) = Character(id, name, level, abilityScores)
+    skills: Map<Skill, Proficiency> = emptyMap(),
+) = Character(id, name, level, abilityScores, SkillProficiencies.of(skills))
