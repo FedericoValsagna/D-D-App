@@ -13,7 +13,7 @@ services:
       HOME: /tmp
       REPO_DIR: ${DNDAPP_DIR}
       BACKUP_DIR: /backups
-      GITHUB_REPO: FedericoValsagna/D-D-App
+      GITHUB_REPO: FedericoValsagna/DnD-Server
       POLL_INTERVAL_SECONDS: 300
       BACKUPS_TO_KEEP: 14
     volumes:

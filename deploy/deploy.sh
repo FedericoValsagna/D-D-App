@@ -20,7 +20,7 @@ compose() { docker compose --project-directory "$REPO_DIR" -f "$REPO_DIR/compose
 ci_status() {
     local auth=()
     [ -n "${GITHUB_TOKEN:-}" ] && auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
-    curl -fsS "${auth[@]}" -H "Accept: application/vnd.github+json" \
+    curl -fsSL "${auth[@]}" -H "Accept: application/vnd.github+json" \
         "https://api.github.com/repos/$GITHUB_REPO/commits/$1/check-runs?check_name=$CI_CHECK_NAME" |
         jq -r '
             if .total_count == 0 or any(.check_runs[]; .status != "completed") then "pending"
