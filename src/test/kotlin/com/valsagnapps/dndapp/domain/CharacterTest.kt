@@ -101,4 +101,87 @@ class CharacterTest {
     fun `passive perception without proficiency only uses wisdom`() {
         assertEquals(9, character(abilityScores = abilityScores(wisdom = 8)).passivePerception)
     }
+
+    @Test
+    fun `level is the sum of the class levels`() {
+        val character = character(
+            classes = listOf(ClassLevel(CharacterClass.FIGHTER, 5), ClassLevel(CharacterClass.WIZARD, 3)),
+        )
+
+        assertEquals(8, character.level)
+        assertEquals(3, character.proficiencyBonus)
+    }
+
+    @Test
+    fun `rejects characters without classes`() {
+        assertFailsWith<IllegalArgumentException> { character(classes = emptyList()) }
+    }
+
+    @Test
+    fun `rejects repeated classes`() {
+        assertFailsWith<IllegalArgumentException> {
+            character(classes = listOf(ClassLevel(CharacterClass.ROGUE, 2), ClassLevel(CharacterClass.ROGUE, 3)))
+        }
+    }
+
+    @Test
+    fun `rejects a total level above 20`() {
+        assertFailsWith<IllegalArgumentException> {
+            character(classes = listOf(ClassLevel(CharacterClass.FIGHTER, 15), ClassLevel(CharacterClass.ROGUE, 6)))
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [0, 1000])
+    fun `rejects max hit points out of range`(maxHitPoints: Int) {
+        assertFailsWith<IllegalArgumentException> { character(maxHitPoints = maxHitPoints) }
+    }
+
+    @Test
+    fun `hit dice come from the class`() {
+        assertEquals(mapOf(8 to 15), character(level = 15, characterClass = CharacterClass.CLERIC).hitDice)
+    }
+
+    @Test
+    fun `hit dice of a multiclass are grouped by die from largest to smallest`() {
+        val character = character(
+            classes = listOf(
+                ClassLevel(CharacterClass.WIZARD, 2),
+                ClassLevel(CharacterClass.PALADIN, 3),
+                ClassLevel(CharacterClass.FIGHTER, 1),
+            ),
+        )
+
+        assertEquals(listOf(10 to 4, 6 to 2), character.hitDice.toList())
+    }
+
+    @Test
+    fun `saving throws of the class are proficient`() {
+        val character =
+            character(level = 5, characterClass = CharacterClass.CLERIC, abilityScores = abilityScores(wisdom = 16))
+
+        assertEquals(Proficiency.PROFICIENT, character.savingThrowProficiency(Ability.WISDOM))
+        assertEquals(Proficiency.PROFICIENT, character.savingThrowProficiency(Ability.CHARISMA))
+        assertEquals(Proficiency.NONE, character.savingThrowProficiency(Ability.STRENGTH))
+        assertEquals(6, character.savingThrowBonus(Ability.WISDOM))
+    }
+
+    @Test
+    fun `saving throw without proficiency is the ability modifier`() {
+        val character =
+            character(level = 5, characterClass = CharacterClass.CLERIC, abilityScores = abilityScores(strength = 8))
+
+        assertEquals(-1, character.savingThrowBonus(Ability.STRENGTH))
+    }
+
+    @Test
+    fun `only the starting class gives saving throw proficiencies`() {
+        val character = character(
+            classes = listOf(ClassLevel(CharacterClass.RANGER, 5), ClassLevel(CharacterClass.ROGUE, 2)),
+        )
+
+        assertEquals(Proficiency.PROFICIENT, character.savingThrowProficiency(Ability.DEXTERITY))
+        assertEquals(Proficiency.PROFICIENT, character.savingThrowProficiency(Ability.STRENGTH))
+        assertEquals(Proficiency.NONE, character.savingThrowProficiency(Ability.INTELLIGENCE))
+    }
 }

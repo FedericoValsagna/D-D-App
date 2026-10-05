@@ -13,6 +13,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.MapKeyEnumerated
+import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import java.util.UUID
 
@@ -21,13 +22,13 @@ import java.util.UUID
 class CharacterEntity(
     @Id val id: UUID,
     val name: String,
-    val level: Int,
     val strength: Int,
     val dexterity: Int,
     val constitution: Int,
     val intelligence: Int,
     val wisdom: Int,
     val charisma: Int,
+    val maxHitPoints: Int,
     // EAGER porque open-in-view está apagado: el mapeo a dominio pasa fuera de la transacción.
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "character_skills", joinColumns = [JoinColumn(name = "character_id")])
@@ -36,4 +37,8 @@ class CharacterEntity(
     @Column(name = "proficiency")
     @Enumerated(EnumType.STRING)
     val skills: MutableMap<Skill, Proficiency>,
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "character_classes", joinColumns = [JoinColumn(name = "character_id")])
+    @OrderColumn(name = "position")
+    val classes: MutableList<ClassLevelEmbeddable>,
 )

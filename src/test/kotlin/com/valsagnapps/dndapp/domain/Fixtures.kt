@@ -13,6 +13,9 @@ fun character(
     id: CharacterId = CharacterId.new(),
     name: String = "Tordek",
     level: Int = 1,
+    characterClass: CharacterClass = CharacterClass.FIGHTER,
+    classes: List<ClassLevel> = listOf(ClassLevel(characterClass, level)),
     abilityScores: AbilityScores = abilityScores(),
+    maxHitPoints: Int = 10,
     skills: Map<Skill, Proficiency> = emptyMap(),
-) = Character(id, name, level, abilityScores, SkillProficiencies.of(skills))
+) = Character(id, name, classes, abilityScores, maxHitPoints, SkillProficiencies.of(skills))
