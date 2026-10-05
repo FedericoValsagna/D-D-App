@@ -81,7 +81,7 @@ kover {
         filters {
             excludes {
                 // Punto de entrada de Spring, no tiene lógica para testear.
-                classes("com.valsagnapp.dydapp.DydAppApplicationKt")
+                classes("com.valsagnapp.dndapp.DndAppApplicationKt")
             }
         }
         verify {

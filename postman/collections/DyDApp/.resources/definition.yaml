@@ -1,5 +1,0 @@
-$kind: collection
-name: DyDApp
-description: |-
-  Endpoints del server de DyDApp. Elegir el environment (dev, run o prod) antes de mandar requests.
-  "Create character" guarda el id en la variable characterId, que usan los demás requests.

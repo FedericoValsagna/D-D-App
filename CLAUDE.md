@@ -1,4 +1,4 @@
-# DyDApp – Server
+# DnDApp – Server
 
 Backend de una app de character sheets de D&D. El cliente es una app Android (Jetpack Compose) que vive en **otro repo, en Windows**; este server corre en WSL. El contrato entre ambos es la API REST (ver "Contrato con la app").
 
@@ -27,7 +27,7 @@ make openapi        # guarda el spec de dev en build/openapi.json (para la app A
 make prod-status    # estado de prod y commit desplegado (prod-logs, deployer-logs, backups)
 ```
 
-Prod y dev son proyectos de compose distintos (`dydapp` / `dydapp-dev`), con volúmenes de base separados.
+Prod y dev son proyectos de compose distintos (`dydapp` / `dydapp-dev`), con volúmenes de base separados. Los nombres de infraestructura (proyectos de compose, volúmenes, deployer, carpetas) conservan `dydapp` a propósito: renombrar el proyecto de prod crearía un volumen nuevo y vacío.
 
 Con el perfil `dev`, el spec OpenAPI está en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` (apagados fuera de dev).
 
@@ -36,7 +36,7 @@ Con el perfil `dev`, el spec OpenAPI está en `/v3/api-docs` y Swagger UI en `/s
 La "MVC" de Spring vive solo en el adapter de entrada web: el controller es un adapter, el "view" son los DTOs JSON. La lógica de D&D va en el dominio.
 
 ```
-com.valsagnapp.dydapp
+com.valsagnapp.dndapp
 ├── domain/                  # Kotlin puro: modelos, reglas de D&D, value objects. SIN Spring, SIN JPA.
 ├── application/
 │   ├── port/inbound/        # casos de uso (interfaces): CreateCharacterUseCase, ...
@@ -78,7 +78,7 @@ Objetivo: buen coverage, con la pirámide bien armada.
 ## Contrato con la app
 
 - Endpoints versionados bajo `/api/v1/...`.
-- Todo endpoint nuevo bajo `/api` lleva su request en la colección de Postman (`postman/collections/DyDApp/<Nombre>.request.yaml`, con `url: "{{baseUrl}}/api/..."`, un script con `pm.test` y `order` para ubicarlo). `PostmanCollectionTest` falla si la colección y los endpoints no coinciden. Environments en `postman/environments` (dev 8081, run 8082, prod 8080).
+- Todo endpoint nuevo bajo `/api` lleva su request en la colección de Postman (`postman/collections/DnDApp/<Nombre>.request.yaml`, con `url: "{{baseUrl}}/api/..."`, un script con `pm.test` y `order` para ubicarlo). `PostmanCollectionTest` falla si la colección y los endpoints no coinciden. Environments en `postman/environments` (dev 8081, run 8082, prod 8080).
 - Cambios que rompan el contrato (renombrar/quitar campos, cambiar tipos) requieren nueva versión o coordinación explícita con la app Android.
 
 ## Despliegue y seguridad
