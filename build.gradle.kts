@@ -9,7 +9,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
-group = "com.valsagnapp"
+group = "com.valsagnapps"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -81,7 +81,7 @@ kover {
         filters {
             excludes {
                 // Punto de entrada de Spring, no tiene lógica para testear.
-                classes("com.valsagnapp.dydapp.DydAppApplicationKt")
+                classes("com.valsagnapps.dndapp.DndAppApplicationKt")
             }
         }
         verify {

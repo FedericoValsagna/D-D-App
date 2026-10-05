@@ -34,14 +34,14 @@ backup_db() {
         return 0
     fi
     local file
-    file="$BACKUP_DIR/dydapp-$(date -u +%Y%m%dT%H%M%SZ)-${1:0:7}.dump"
+    file="$BACKUP_DIR/dndapp-$(date -u +%Y%m%dT%H%M%SZ)-${1:0:7}.dump"
     if ! compose exec -T db pg_dump -U app -d app -Fc >"$file.tmp"; then
         rm -f "$file.tmp"
         return 1
     fi
     mv "$file.tmp" "$file"
     log "backup: $file"
-    ls -1t "$BACKUP_DIR"/dydapp-*.dump | tail -n +$((BACKUPS_TO_KEEP + 1)) | xargs -r rm --
+    ls -1t "$BACKUP_DIR"/dndapp-*.dump | tail -n +$((BACKUPS_TO_KEEP + 1)) | xargs -r rm --
 }
 
 up() { compose up -d --build --wait --wait-timeout 180; }

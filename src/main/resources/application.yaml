@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dydapp
+    name: dndapp
   config:
     import: optional:configtree:/run/secrets/
   datasource:
