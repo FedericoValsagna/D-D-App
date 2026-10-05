@@ -59,8 +59,17 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
+// Misma zona horaria que en los contenedores. Además, Postgres rechaza alias viejos que puede tener la
+// máquina local (ej: America/Buenos_Aires) y el driver se la manda al conectar.
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-Duser.timezone=UTC")
+    // PostmanCollectionTest lee la colección: si cambia, los tests tienen que volver a correr.
+    inputs.dir("postman/collections").withPropertyName("postmanCollections")
+}
+
+tasks.bootRun {
+    jvmArgs("-Duser.timezone=UTC")
 }
 
 tasks.bootJar {

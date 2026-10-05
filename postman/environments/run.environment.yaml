@@ -1,0 +1,4 @@
+name: run
+values:
+  - key: baseUrl
+    value: http://localhost:8082

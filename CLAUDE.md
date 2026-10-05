@@ -12,15 +12,19 @@ Backend de una app de character sheets de D&D. El cliente es una app Android (Je
 
 Gradle requiere JDK 21 local (WSL Fedora: `sudo dnf install java-21-openjdk-devel`) y Docker (Testcontainers levanta Postgres para los tests). Para solo correr el server alcanza con Docker.
 
+Todo pasa por el `Makefile` (`make` sin argumentos lista los targets):
+
 ```bash
-./gradlew build                 # compila + tests + ktlint + detekt + verificación de coverage (mín. 80%)
-./gradlew test                  # solo tests
-./gradlew test --tests '*CharacterTest*'   # un test puntual
-./gradlew ktlintFormat          # autoformatea
-./gradlew koverHtmlReport       # reporte de coverage en build/reports/kover/html
-docker compose up -d --build                                    # PROD: db + app (localhost:8080)
-docker compose -f compose.yaml -f compose.dev.yaml up -d db     # dev: solo Postgres (localhost:5435)
-docker compose -f compose.yaml -f compose.dev.yaml up --build   # dev: db + app (localhost:8081)
+make build          # lo mismo que el CI: compila, tests, ktlint, detekt y coverage mínimo (80%)
+make test           # tests; filtrar con: make test T='*CharacterTest*'
+make lint           # ktlint + detekt
+make format         # autoformatea con ktlint
+make coverage       # reporte en build/reports/kover/html
+make dev            # dev en Docker: db + app en localhost:8081 (Swagger en /swagger-ui.html)
+make run            # app con Gradle contra la db de dev, en localhost:8082 (iteración rápida)
+make psql           # consola en la db de dev
+make openapi        # guarda el spec de dev en build/openapi.json (para la app Android)
+make prod-status    # estado de prod y commit desplegado (prod-logs, deployer-logs, backups)
 ```
 
 Prod y dev son proyectos de compose distintos (`dydapp` / `dydapp-dev`), con volúmenes de base separados.
@@ -74,6 +78,7 @@ Objetivo: buen coverage, con la pirámide bien armada.
 ## Contrato con la app
 
 - Endpoints versionados bajo `/api/v1/...`.
+- Todo endpoint nuevo bajo `/api` lleva su request en la colección de Postman (`postman/collections/DyDApp/<Nombre>.request.yaml`, con `url: "{{baseUrl}}/api/..."`, un script con `pm.test` y `order` para ubicarlo). `PostmanCollectionTest` falla si la colección y los endpoints no coinciden. Environments en `postman/environments` (dev 8081, run 8082, prod 8080).
 - Cambios que rompan el contrato (renombrar/quitar campos, cambiar tipos) requieren nueva versión o coordinación explícita con la app Android.
 
 ## Despliegue y seguridad
