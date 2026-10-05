@@ -1,6 +1,12 @@
 package com.valsagnapps.dndapp.domain
 
-data class Character(val id: CharacterId, val name: String, val level: Int, val abilityScores: AbilityScores) {
+data class Character(
+    val id: CharacterId,
+    val name: String,
+    val level: Int,
+    val abilityScores: AbilityScores,
+    val skillProficiencies: SkillProficiencies = SkillProficiencies.NONE,
+) {
     init {
         require(name.isNotBlank()) { "name must not be blank" }
         require(name.length <= MAX_NAME_LENGTH) { "name must have at most $MAX_NAME_LENGTH characters" }
@@ -11,9 +17,16 @@ data class Character(val id: CharacterId, val name: String, val level: Int, val 
     val proficiencyBonus: Int
         get() = 2 + (level - 1) / 4
 
+    fun skillBonus(skill: Skill): Int =
+        abilityScores.modifierOf(skill.ability) + proficiencyBonus * skillProficiencies.of(skill).multiplier
+
+    val passivePerception: Int
+        get() = PASSIVE_BASE + skillBonus(Skill.PERCEPTION)
+
     companion object {
         const val MIN_LEVEL = 1
         const val MAX_LEVEL = 20
         const val MAX_NAME_LENGTH = 100
+        private const val PASSIVE_BASE = 10
     }
 }

@@ -1,0 +1,29 @@
+$kind: http-request
+name: Update skills
+url: "{{baseUrl}}/api/v1/characters/{{characterId}}/skills"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "skills": {
+        "ATHLETICS": "PROFICIENT",
+        "SURVIVAL": "EXPERTISE"
+      }
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+
+      pm.test("skills replaced", function () {
+        pm.response.to.have.status(200);
+        pm.expect(body.skills.ATHLETICS.proficiency).to.equal("PROFICIENT");
+        pm.expect(body.skills.SURVIVAL.proficiency).to.equal("EXPERTISE");
+        pm.expect(body.skills.PERCEPTION.proficiency).to.equal("NONE");
+        pm.expect(body.passivePerception).to.equal(11);
+      });
+order: 40

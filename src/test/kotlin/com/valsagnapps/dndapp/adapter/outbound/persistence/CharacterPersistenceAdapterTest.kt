@@ -2,8 +2,12 @@ package com.valsagnapps.dndapp.adapter.outbound.persistence
 
 import com.valsagnapps.dndapp.TestcontainersConfiguration
 import com.valsagnapps.dndapp.domain.CharacterId
+import com.valsagnapps.dndapp.domain.Proficiency
+import com.valsagnapps.dndapp.domain.Skill
+import com.valsagnapps.dndapp.domain.SkillProficiencies
 import com.valsagnapps.dndapp.domain.abilityScores
 import com.valsagnapps.dndapp.domain.character
+import jakarta.persistence.EntityManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
@@ -19,6 +23,9 @@ import kotlin.test.assertTrue
 class CharacterPersistenceAdapterTest {
     @Autowired
     lateinit var adapter: CharacterPersistenceAdapter
+
+    @Autowired
+    lateinit var entityManager: EntityManager
 
     @Test
     fun `saves and loads a character`() {
@@ -51,5 +58,36 @@ class CharacterPersistenceAdapterTest {
     @Test
     fun `returns null when the character does not exist`() {
         assertNull(adapter.findById(CharacterId.new()))
+    }
+
+    @Test
+    fun `saves and loads skill proficiencies`() {
+        val character = character(
+            skills = mapOf(Skill.STEALTH to Proficiency.EXPERTISE, Skill.PERCEPTION to Proficiency.PROFICIENT),
+        )
+
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(character, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `replaces skill proficiencies when saving an existing character`() {
+        val character = character(skills = mapOf(Skill.STEALTH to Proficiency.PROFICIENT))
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        val updated = character.copy(
+            skillProficiencies = SkillProficiencies.of(mapOf(Skill.ARCANA to Proficiency.EXPERTISE)),
+        )
+        adapter.save(updated)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(updated, adapter.findById(character.id))
+        assertEquals(updated, adapter.findAll().single { it.id == character.id })
     }
 }
