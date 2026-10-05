@@ -27,7 +27,7 @@ make openapi        # guarda el spec de dev en build/openapi.json (para la app A
 make prod-status    # estado de prod y commit desplegado (prod-logs, deployer-logs, backups)
 ```
 
-Prod y dev son proyectos de compose distintos (`dydapp` / `dydapp-dev`), con volúmenes de base separados. Los nombres de infraestructura (proyectos de compose, volúmenes, deployer, carpetas) conservan `dydapp` a propósito: renombrar el proyecto de prod crearía un volumen nuevo y vacío.
+Prod y dev son proyectos de compose distintos (`dndapp` / `dndapp-dev`), con volúmenes de base separados.
 
 Con el perfil `dev`, el spec OpenAPI está en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` (apagados fuera de dev).
 
@@ -36,7 +36,7 @@ Con el perfil `dev`, el spec OpenAPI está en `/v3/api-docs` y Swagger UI en `/s
 La "MVC" de Spring vive solo en el adapter de entrada web: el controller es un adapter, el "view" son los DTOs JSON. La lógica de D&D va en el dominio.
 
 ```
-com.valsagnapp.dndapp
+com.valsagnapps.dndapp
 ├── domain/                  # Kotlin puro: modelos, reglas de D&D, value objects. SIN Spring, SIN JPA.
 ├── application/
 │   ├── port/inbound/        # casos de uso (interfaces): CreateCharacterUseCase, ...
@@ -90,9 +90,9 @@ Objetivo: buen coverage, con la pirámide bien armada.
 ### Deploy automático (`deploy/`)
 
 - Prod corre desde un checkout **separado** en `~/Proyectos/DyDApp/prod` (nunca editarlo a mano). Este repo (`server/`) es solo para desarrollo.
-- El contenedor `dydapp-deployer` revisa `main` cada 5 minutos. Si hay un commit nuevo y su check `build` del CI pasó, hace backup de la base, `git reset --hard` al commit y `docker compose up -d --build --wait`. Si el deploy falla, vuelve al commit anterior (las migraciones aplicadas **no** se revierten: para eso está el backup).
+- El contenedor `dndapp-deployer` revisa `main` cada 5 minutos. Si hay un commit nuevo y su check `build` del CI pasó, hace backup de la base, `git reset --hard` al commit y `docker compose up -d --build --wait`. Si el deploy falla, vuelve al commit anterior (las migraciones aplicadas **no** se revierten: para eso está el backup).
 - Polling en vez de runner self-hosted porque el repo es público: GitHub nunca ejecuta código en la PC.
-- Logs: `docker logs -f dydapp-deployer-deployer-1`.
+- Logs: `docker logs -f dndapp-deployer-deployer-1`.
 - Cambios en `deploy/` no se autoaplican: después de mergearlos, `docker compose -f deploy/compose.yaml up -d --build` desde el checkout de prod.
 - Backups: `pg_dump -Fc` antes de cada deploy en `~/Proyectos/DyDApp/backups` (se guardan los últimos 14). Están en el mismo disco: protegen de una migración mala, no de que se muera el disco. Para restaurar (desde el checkout de prod):
   ```bash

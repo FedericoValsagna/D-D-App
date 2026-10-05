@@ -1,4 +1,4 @@
-name: dydapp
+name: dndapp
 
 services:
   db:

@@ -1,9 +1,9 @@
 .DEFAULT_GOAL := help
 
 DEV := docker compose -f compose.yaml -f compose.dev.yaml
-PROD_DIR := $(HOME)/Proyectos/DyDApp/prod
+PROD_DIR := $(abspath $(CURDIR)/../prod)
 PROD := docker compose --project-directory $(PROD_DIR) -f $(PROD_DIR)/compose.yaml
-BACKUP_DIR := $(HOME)/Proyectos/DyDApp/backups
+BACKUP_DIR := $(abspath $(CURDIR)/../backups)
 GRADLE := ./gradlew
 
 .PHONY: help
@@ -94,7 +94,7 @@ prod-logs: ## Sigue los logs de la app de prod
 
 .PHONY: deployer-logs
 deployer-logs: ## Sigue los logs del deployer
-	docker logs -f dydapp-deployer-deployer-1
+	docker logs -f dndapp-deployer-deployer-1
 
 .PHONY: backups
 backups: ## Lista los backups de la base de prod

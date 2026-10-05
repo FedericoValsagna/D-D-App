@@ -1,6 +1,6 @@
 # Override de desarrollo: docker compose -f compose.yaml -f compose.dev.yaml up --build
 # Proyecto aparte (contenedores y volumen propios) para que dev nunca toque la base de prod.
-name: dydapp-dev
+name: dndapp-dev
 
 services:
   db:
