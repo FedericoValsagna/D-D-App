@@ -5,7 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+  checks: write # para que el reporte de tests marque los fallos en el PR
+
 jobs:
+  # El deployer y la protección de main esperan el check "build": si se renombra este job, actualizar ambos.
   build:
     runs-on: ubuntu-latest
     steps:
@@ -18,16 +23,39 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      # Compila, corre tests (Testcontainers usa el Docker del runner), ktlint, detekt y verifica coverage.
+      - name: Lint (ktlint + detekt)
+        run: ./gradlew ktlintCheck detekt
+
+      # Corre aunque falle el lint, para ver todos los problemas en una sola corrida.
+      # Testcontainers usa el Docker del runner.
+      - name: Tests
+        if: success() || failure()
+        run: ./gradlew test
+
+      - name: Reporte de tests
+        if: success() || failure()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: build/test-results/test/*.xml
+          check_name: Tests
+          detailed_summary: true
+
+      - name: Coverage (mínimo 80%)
+        if: success() || failure()
+        run: |
+          set +e
+          ./gradlew koverHtmlReport koverLog koverVerify | tee coverage.log
+          status=${PIPESTATUS[0]}
+          echo "### Coverage" >> "$GITHUB_STEP_SUMMARY"
+          grep -i 'coverage' coverage.log >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+
+      # Red de seguridad: corre todo lo que falte de `check` y arma el jar. Lo anterior queda up-to-date.
       - name: Build
         run: ./gradlew build
 
-      - name: Coverage report
-        if: always()
-        run: ./gradlew koverHtmlReport
-
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: success() || failure()
         with:
           name: reports
           path: build/reports/
