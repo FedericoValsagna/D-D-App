@@ -1,0 +1,26 @@
+# Deployer de prod. Se levanta una vez desde el checkout de prod: docker compose -f deploy/compose.yaml up -d --build
+# Variables en deploy/.env (gitignored), ver CLAUDE.md.
+name: dydapp-deployer
+
+services:
+  deployer:
+    build: .
+    restart: unless-stopped
+    user: "${DEPLOYER_UID:-1000}:${DEPLOYER_GID:-1000}" # dueño del checkout de prod
+    group_add:
+      - "${DOCKER_SOCKET_GID:-994}"
+    environment:
+      HOME: /tmp
+      REPO_DIR: ${DYDAPP_DIR}
+      BACKUP_DIR: /backups
+      GITHUB_REPO: FedericoValsagna/D-D-App
+      POLL_INTERVAL_SECONDS: 300
+      BACKUPS_TO_KEEP: 14
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Misma ruta adentro que afuera: docker compose le pasa rutas del host al daemon (secrets, build context).
+      - ${DYDAPP_DIR:?definir DYDAPP_DIR en deploy/.env}:${DYDAPP_DIR}
+      - ${DYDAPP_BACKUP_DIR:?definir DYDAPP_BACKUP_DIR en deploy/.env}:/backups
+    mem_limit: 256m
+    security_opt:
+      - no-new-privileges:true

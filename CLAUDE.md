@@ -78,9 +78,29 @@ Objetivo: buen coverage, con la pirámide bien armada.
 
 ## Despliegue y seguridad
 
-- "Prod" es la PC del usuario (Windows + Docker Desktop + WSL), usada por una sola persona desde su celular vía Tailscale.
+- "Prod" es la PC del usuario (Windows + Docker Desktop + WSL Fedora), usada por una sola persona desde su celular vía Tailscale.
 - La app publica solo en `127.0.0.1:8080`; se expone al tailnet con `tailscale serve --bg 8080` (HTTPS con certificado válido, solo dispositivos del tailnet).
 - **No hay autenticación a nivel app a propósito**: el límite de seguridad es Tailscale. Nunca publicar puertos en `0.0.0.0` ni usar `tailscale funnel` (eso lo abriría a internet). Si eso cambia, hay que agregar auth antes.
+
+### Deploy automático (`deploy/`)
+
+- Prod corre desde un checkout **separado** en `~/Proyectos/DyDApp/prod` (nunca editarlo a mano). Este repo (`server/`) es solo para desarrollo.
+- El contenedor `dydapp-deployer` revisa `main` cada 5 minutos. Si hay un commit nuevo y su check `build` del CI pasó, hace backup de la base, `git reset --hard` al commit y `docker compose up -d --build --wait`. Si el deploy falla, vuelve al commit anterior (las migraciones aplicadas **no** se revierten: para eso está el backup).
+- Polling en vez de runner self-hosted porque el repo es público: GitHub nunca ejecuta código en la PC.
+- Logs: `docker logs -f dydapp-deployer-deployer-1`.
+- Cambios en `deploy/` no se autoaplican: después de mergearlos, `docker compose -f deploy/compose.yaml up -d --build` desde el checkout de prod.
+- Backups: `pg_dump -Fc` antes de cada deploy en `~/Proyectos/DyDApp/backups` (se guardan los últimos 14). Están en el mismo disco: protegen de una migración mala, no de que se muera el disco. Para restaurar (desde el checkout de prod):
+  ```bash
+  docker compose stop app
+  docker compose exec -T db pg_restore -U app -d app --clean --if-exists < ~/Proyectos/DyDApp/backups/<archivo>.dump
+  docker compose start app
+  ```
+
+### Flujo de trabajo
+
+- `main` está protegida: todo cambio entra por PR con el CI en verde. Mergear a `main` = deployar a prod.
+- Trabajar en ramas (`feature/...`, `fix/...`) y nunca pushear directo a `main`.
+- Cambios de esquema: pensar que el deploy aplica la migración sola. Preferir migraciones aditivas (agregar columnas/tablas) antes que destructivas.
 
 ## Secretos
 
