@@ -1,0 +1,30 @@
+$kind: http-request
+name: Update classes
+url: "{{baseUrl}}/api/v1/characters/{{characterId}}/classes"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "classes": [
+        { "class": "FIGHTER", "level": 3 },
+        { "class": "CLERIC", "level": 2 }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+
+      pm.test("classes replaced", function () {
+        pm.response.to.have.status(200);
+        pm.expect(body.level).to.equal(5);
+        pm.expect(body.classes.map(c => c.class)).to.eql(["FIGHTER", "CLERIC"]);
+        pm.expect(body.hitDice).to.eql([{ die: 10, count: 3 }, { die: 8, count: 2 }]);
+        pm.expect(body.savingThrows.STRENGTH.proficiency).to.equal("PROFICIENT");
+        pm.expect(body.savingThrows.WISDOM.proficiency).to.equal("NONE");
+      });
+order: 50

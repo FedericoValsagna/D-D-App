@@ -9,7 +9,10 @@ body:
   content: |-
     {
       "name": "Tordek",
-      "level": 5,
+      "classes": [
+        { "class": "FIGHTER", "level": 5 }
+      ],
+      "maxHitPoints": 44,
       "abilityScores": {
         "strength": 16,
         "dexterity": 12,
@@ -32,6 +35,11 @@ scripts:
 
       pm.test("character created with derived stats", function () {
         pm.response.to.have.status(201);
+        pm.expect(body.level).to.equal(5);
+        pm.expect(body.classes[0].class).to.equal("FIGHTER");
+        pm.expect(body.maxHitPoints).to.equal(44);
+        pm.expect(body.hitDice[0]).to.eql({ die: 10, count: 5 });
+        pm.expect(body.savingThrows.STRENGTH.bonus).to.equal(6);
         pm.expect(body.proficiencyBonus).to.equal(3);
         pm.expect(body.abilities.STRENGTH.modifier).to.equal(3);
         pm.expect(body.skills.ATHLETICS.bonus).to.equal(6);

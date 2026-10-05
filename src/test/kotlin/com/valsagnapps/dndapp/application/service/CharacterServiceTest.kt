@@ -1,8 +1,9 @@
 package com.valsagnapps.dndapp.application.service
 
-import com.valsagnapps.dndapp.application.port.inbound.CreateCharacterCommand
+import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.CharacterId
 import com.valsagnapps.dndapp.domain.CharacterNotFoundException
+import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
@@ -17,26 +18,34 @@ class CharacterServiceTest {
 
     @Test
     fun `creates and persists a character`() {
-        val command = CreateCharacterCommand(name = "Lidda", level = 3, abilityScores = abilityScores(dexterity = 16))
+        val command = createCommand(
+            name = "Lidda",
+            level = 3,
+            abilityScores = abilityScores(dexterity = 16),
+            characterClass = CharacterClass.ROGUE,
+            maxHitPoints = 20,
+        )
 
         val created = service.create(command)
 
         assertEquals("Lidda", created.name)
         assertEquals(3, created.level)
+        assertEquals(listOf(ClassLevel(CharacterClass.ROGUE, 3)), created.classes)
+        assertEquals(20, created.maxHitPoints)
         assertEquals(16, created.abilityScores.dexterity)
         assertEquals(created, repository.findById(created.id))
     }
 
     @Test
     fun `gets an existing character`() {
-        val created = service.create(CreateCharacterCommand("Mialee", 1, abilityScores()))
+        val created = service.create(createCommand("Mialee"))
 
         assertEquals(created, service.get(created.id))
     }
 
     @Test
     fun `lists characters sorted by name ignoring case`() {
-        listOf("Mialee", "ember", "Tordek").forEach { service.create(CreateCharacterCommand(it, 1, abilityScores())) }
+        listOf("Mialee", "ember", "Tordek").forEach { service.create(createCommand(it)) }
 
         assertEquals(listOf("ember", "Mialee", "Tordek"), service.list().map { it.name })
     }
@@ -55,7 +64,7 @@ class CharacterServiceTest {
     fun `creates a character with skill proficiencies`() {
         val skills = SkillProficiencies.of(mapOf(Skill.STEALTH to Proficiency.EXPERTISE))
 
-        val created = service.create(CreateCharacterCommand("Lidda", 1, abilityScores(), skills))
+        val created = service.create(createCommand("Lidda", skillProficiencies = skills))
 
         assertEquals(skills, repository.findById(created.id)?.skillProficiencies)
     }
@@ -63,11 +72,13 @@ class CharacterServiceTest {
     @Test
     fun `replaces the skill proficiencies of a character`() {
         val created = service.create(
-            CreateCharacterCommand(
+            createCommand(
                 "Lidda",
-                1,
-                abilityScores(),
-                SkillProficiencies.of(mapOf(Skill.STEALTH to Proficiency.PROFICIENT)),
+                skillProficiencies = SkillProficiencies.of(
+                    mapOf(
+                        Skill.STEALTH to Proficiency.PROFICIENT,
+                    ),
+                ),
             ),
         )
         val newSkills = SkillProficiencies.of(mapOf(Skill.ACROBATICS to Proficiency.EXPERTISE))
@@ -81,5 +92,38 @@ class CharacterServiceTest {
     @Test
     fun `fails to update skills when the character does not exist`() {
         assertFailsWith<CharacterNotFoundException> { service.updateSkills(CharacterId.new(), SkillProficiencies.NONE) }
+    }
+
+    @Test
+    fun `replaces the classes of a character`() {
+        val created = service.create(createCommand("Jozan", level = 4))
+        val newClasses = listOf(ClassLevel(CharacterClass.CLERIC, 3), ClassLevel(CharacterClass.FIGHTER, 1))
+
+        val updated = service.updateClasses(created.id, newClasses)
+
+        assertEquals(newClasses, updated.classes)
+        assertEquals(created.copy(classes = newClasses), repository.findById(created.id))
+    }
+
+    @Test
+    fun `fails to update classes when the character does not exist`() {
+        assertFailsWith<CharacterNotFoundException> {
+            service.updateClasses(CharacterId.new(), listOf(ClassLevel(CharacterClass.BARD, 1)))
+        }
+    }
+
+    @Test
+    fun `updates the max hit points of a character`() {
+        val created = service.create(createCommand("Krusk", maxHitPoints = 12))
+
+        val updated = service.updateMaxHitPoints(created.id, 45)
+
+        assertEquals(45, updated.maxHitPoints)
+        assertEquals(created.copy(maxHitPoints = 45), repository.findById(created.id))
+    }
+
+    @Test
+    fun `fails to update hit points when the character does not exist`() {
+        assertFailsWith<CharacterNotFoundException> { service.updateMaxHitPoints(CharacterId.new(), 10) }
     }
 }

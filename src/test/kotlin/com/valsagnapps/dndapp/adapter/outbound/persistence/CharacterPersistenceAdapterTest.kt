@@ -1,7 +1,9 @@
 package com.valsagnapps.dndapp.adapter.outbound.persistence
 
 import com.valsagnapps.dndapp.TestcontainersConfiguration
+import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.CharacterId
+import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
@@ -32,6 +34,8 @@ class CharacterPersistenceAdapterTest {
         val character = character(
             name = "Ember",
             level = 7,
+            characterClass = CharacterClass.MONK,
+            maxHitPoints = 52,
             abilityScores = abilityScores(
                 strength = 8,
                 dexterity = 18,
@@ -89,5 +93,39 @@ class CharacterPersistenceAdapterTest {
 
         assertEquals(updated, adapter.findById(character.id))
         assertEquals(updated, adapter.findAll().single { it.id == character.id })
+    }
+
+    @Test
+    fun `saves and loads classes in order`() {
+        val character = character(
+            classes = listOf(
+                ClassLevel(CharacterClass.WIZARD, 3),
+                ClassLevel(CharacterClass.FIGHTER, 2),
+                ClassLevel(CharacterClass.CLERIC, 1),
+            ),
+        )
+
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(character, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `replaces classes and hit points when saving an existing character`() {
+        val character = character(
+            classes = listOf(ClassLevel(CharacterClass.FIGHTER, 4), ClassLevel(CharacterClass.ROGUE, 2)),
+        )
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        val updated = character.copy(classes = listOf(ClassLevel(CharacterClass.RANGER, 5)), maxHitPoints = 42)
+        adapter.save(updated)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(updated, adapter.findById(character.id))
     }
 }

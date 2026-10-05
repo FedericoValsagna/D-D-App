@@ -1,0 +1,23 @@
+$kind: http-request
+name: Update hit points
+url: "{{baseUrl}}/api/v1/characters/{{characterId}}/hit-points"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "maxHitPoints": 47
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+
+      pm.test("max hit points updated", function () {
+        pm.response.to.have.status(200);
+        pm.expect(body.maxHitPoints).to.equal(47);
+      });
+order: 60

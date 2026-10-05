@@ -59,6 +59,15 @@ Reglas:
 - Estas reglas están verificadas con Konsist en `architecture/ArchitectureTest.kt`. Si un test de arquitectura falla, se arregla el código, no el test.
 - Reglas derivadas (modificadores de habilidad, bonus de competencia, CA, etc.) se calculan en el dominio, no se persisten salvo que haya una razón explícita.
 
+## Reglas y catálogo de D&D
+
+- Edición **5e 2014**. El catálogo (clases, y después subclases, features, ...) vive en el dominio como código (enums con su mecánica), no como datos en la base: tiene lógica.
+- Cada elemento del catálogo lleva su `Source` (libro). Por ahora solo `PHB`; sumar un libro = agregar entradas, no cambiar la estructura.
+- Textos: el contenido del SRD puede ir completo; lo que no es SRD (la mayoría de las subclases del PHB) va con mecánica completa y un resumen propio, nunca el texto literal del libro.
+- **Multiclase desde el modelo**: `Character.classes` es una lista de `ClassLevel` (sin clases repetidas, suma de niveles 1–20). La primera es la clase inicial: es la que da las salvaciones. `level` se calcula como la suma; la app hoy permite una sola clase.
+- El HP máximo se carga a mano (promedio o dados, lo decide el jugador): se persiste, no se calcula.
+- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase · 3) subclases (un personaje puede no tener subclase aunque tenga el nivel) · 4) features por nivel · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
+
 ## Testing
 
 Objetivo: buen coverage, con la pirámide bien armada.
