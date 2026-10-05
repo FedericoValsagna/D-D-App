@@ -2,6 +2,7 @@ package com.valsagnapps.dndapp.adapter.inbound.web
 
 import com.valsagnapps.dndapp.application.port.inbound.CreateCharacterUseCase
 import com.valsagnapps.dndapp.application.port.inbound.GetCharacterUseCase
+import com.valsagnapps.dndapp.application.port.inbound.ListCharactersUseCase
 import com.valsagnapps.dndapp.domain.CharacterId
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -19,11 +20,15 @@ import java.util.UUID
 class CharacterController(
     private val createCharacter: CreateCharacterUseCase,
     private val getCharacter: GetCharacterUseCase,
+    private val listCharacters: ListCharactersUseCase,
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: CreateCharacterRequest): CharacterResponse =
         CharacterResponse.from(createCharacter.create(request.toCommand()))
+
+    @GetMapping
+    fun list(): List<CharacterResponse> = listCharacters.list().map(CharacterResponse::from)
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: UUID): CharacterResponse = CharacterResponse.from(getCharacter.get(CharacterId(id)))

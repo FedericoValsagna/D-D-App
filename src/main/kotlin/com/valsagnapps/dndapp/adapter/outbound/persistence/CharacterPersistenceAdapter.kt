@@ -11,6 +11,8 @@ class CharacterPersistenceAdapter(private val jpaRepository: CharacterJpaReposit
     override fun save(character: Character): Character = jpaRepository.save(character.toEntity()).toDomain()
 
     override fun findById(id: CharacterId): Character? = jpaRepository.findById(id.value).orElse(null)?.toDomain()
+
+    override fun findAll(): List<Character> = jpaRepository.findAll().map { it.toDomain() }
 }
 
 private fun Character.toEntity() = CharacterEntity(

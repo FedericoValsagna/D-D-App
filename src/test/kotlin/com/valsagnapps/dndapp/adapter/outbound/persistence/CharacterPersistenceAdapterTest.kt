@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -37,6 +38,14 @@ class CharacterPersistenceAdapterTest {
         adapter.save(character)
 
         assertEquals(character, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `finds all characters`() {
+        val characters = listOf(character(name = "Lidda"), character(name = "Krusk"))
+        characters.forEach { adapter.save(it) }
+
+        assertTrue(adapter.findAll().containsAll(characters))
     }
 
     @Test

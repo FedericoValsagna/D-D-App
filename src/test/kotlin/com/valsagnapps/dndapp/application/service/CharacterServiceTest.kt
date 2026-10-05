@@ -32,6 +32,18 @@ class CharacterServiceTest {
     }
 
     @Test
+    fun `lists characters sorted by name ignoring case`() {
+        listOf("Mialee", "ember", "Tordek").forEach { service.create(CreateCharacterCommand(it, 1, abilityScores())) }
+
+        assertEquals(listOf("ember", "Mialee", "Tordek"), service.list().map { it.name })
+    }
+
+    @Test
+    fun `lists nothing when there are no characters`() {
+        assertEquals(emptyList(), service.list())
+    }
+
+    @Test
     fun `fails when the character does not exist`() {
         assertFailsWith<CharacterNotFoundException> { service.get(CharacterId.new()) }
     }
