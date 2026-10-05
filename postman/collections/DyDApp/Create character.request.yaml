@@ -1,0 +1,34 @@
+$kind: http-request
+name: Create character
+url: "{{baseUrl}}/api/v1/characters"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Tordek",
+      "level": 5,
+      "abilityScores": {
+        "strength": 16,
+        "dexterity": 12,
+        "constitution": 15,
+        "intelligence": 10,
+        "wisdom": 13,
+        "charisma": 8
+      }
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+      pm.collectionVariables.set("characterId", body.id);
+
+      pm.test("character created with derived stats", function () {
+        pm.response.to.have.status(201);
+        pm.expect(body.proficiencyBonus).to.equal(3);
+        pm.expect(body.abilities.STRENGTH.modifier).to.equal(3);
+      });
+order: 20

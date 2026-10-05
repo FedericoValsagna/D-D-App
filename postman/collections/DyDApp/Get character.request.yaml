@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get character
+url: "{{baseUrl}}/api/v1/characters/{{characterId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("character found", function () {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.json().id).to.equal(pm.collectionVariables.get("characterId"));
+      });
+order: 30

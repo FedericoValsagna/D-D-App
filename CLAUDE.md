@@ -78,6 +78,7 @@ Objetivo: buen coverage, con la pirámide bien armada.
 ## Contrato con la app
 
 - Endpoints versionados bajo `/api/v1/...`.
+- Todo endpoint nuevo bajo `/api` lleva su request en la colección de Postman (`postman/collections/DyDApp/<Nombre>.request.yaml`, con `url: "{{baseUrl}}/api/..."`, un script con `pm.test` y `order` para ubicarlo). `PostmanCollectionTest` falla si la colección y los endpoints no coinciden. Environments en `postman/environments` (dev 8081, run 8082, prod 8080).
 - Cambios que rompan el contrato (renombrar/quitar campos, cambiar tipos) requieren nueva versión o coordinación explícita con la app Android.
 
 ## Despliegue y seguridad

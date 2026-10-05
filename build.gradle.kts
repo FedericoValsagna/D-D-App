@@ -64,6 +64,8 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
     jvmArgs("-Duser.timezone=UTC")
+    // PostmanCollectionTest lee la colección: si cambia, los tests tienen que volver a correr.
+    inputs.dir("postman/collections").withPropertyName("postmanCollections")
 }
 
 tasks.bootRun {
