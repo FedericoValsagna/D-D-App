@@ -1,0 +1,17 @@
+$kind: http-request
+name: List characters
+url: "{{baseUrl}}/api/v1/characters"
+method: GET
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+
+      pm.test("characters listed sorted by name", function () {
+        pm.response.to.have.status(200);
+        pm.expect(body).to.be.an("array");
+        const names = body.map(c => c.name.toLowerCase());
+        pm.expect(names).to.eql([...names].sort());
+      });
+order: 25

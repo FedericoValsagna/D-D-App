@@ -7,4 +7,6 @@ interface CharacterRepository {
     fun save(character: Character): Character
 
     fun findById(id: CharacterId): Character?
+
+    fun findAll(): List<Character>
 }

@@ -4,6 +4,7 @@ import com.valsagnapps.dndapp.application.port.inbound.CreateCharacterCommand
 import com.valsagnapps.dndapp.application.service.CharacterService
 import com.valsagnapps.dndapp.application.service.InMemoryCharacterRepository
 import com.valsagnapps.dndapp.domain.abilityScores
+import org.hamcrest.Matchers.hasItem
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
@@ -65,6 +66,18 @@ class CharacterControllerTest {
             status { isOk() }
             jsonPath("$.name") { value("Jozan") }
             jsonPath("$.abilities.WISDOM.modifier") { value(2) }
+        }
+    }
+
+    @Test
+    fun `lists characters`() {
+        characterService.create(CreateCharacterCommand("Alhandra", 4, abilityScores(charisma = 14)))
+
+        mockMvc.get("/api/v1/characters").andExpect {
+            status { isOk() }
+            jsonPath("$") { isArray() }
+            jsonPath("$[?(@.name == 'Alhandra')].proficiencyBonus") { value(hasItem(2)) }
+            jsonPath("$[?(@.name == 'Alhandra')].abilities.CHARISMA.modifier") { value(hasItem(2)) }
         }
     }
 
