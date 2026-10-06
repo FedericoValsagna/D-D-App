@@ -184,4 +184,53 @@ class CharacterTest {
         assertEquals(Proficiency.PROFICIENT, character.savingThrowProficiency(Ability.STRENGTH))
         assertEquals(Proficiency.NONE, character.savingThrowProficiency(Ability.INTELLIGENCE))
     }
+
+    @Test
+    fun `a single class grants its full proficiencies`() {
+        val rogue = character(characterClass = CharacterClass.ROGUE)
+
+        assertEquals(CharacterClass.ROGUE.proficiencies.starting, rogue.proficiencies)
+        assertEquals(listOf(CharacterClass.ROGUE.proficiencies.startingSkills), rogue.skillChoices)
+    }
+
+    @Test
+    fun `multiclassing adds the reduced proficiencies of the other classes`() {
+        val wizardFighter = character(
+            classes = listOf(ClassLevel(CharacterClass.WIZARD, 3), ClassLevel(CharacterClass.FIGHTER, 2)),
+        )
+
+        assertEquals(
+            setOf(ArmorProficiency.LIGHT, ArmorProficiency.MEDIUM, ArmorProficiency.SHIELDS),
+            wizardFighter.proficiencies.armor,
+        )
+        assertEquals(setOf(WeaponProficiency.SIMPLE, WeaponProficiency.MARTIAL), wizardFighter.proficiencies.weapons)
+    }
+
+    @Test
+    fun `the starting class decides which proficiencies are full`() {
+        val fighterWizard = character(
+            classes = listOf(ClassLevel(CharacterClass.FIGHTER, 2), ClassLevel(CharacterClass.WIZARD, 3)),
+        )
+
+        assertEquals(CharacterClass.FIGHTER.proficiencies.starting, fighterWizard.proficiencies)
+    }
+
+    @Test
+    fun `each class offers its skills, reduced after the first`() {
+        val rangerRogue = character(
+            classes = listOf(ClassLevel(CharacterClass.RANGER, 5), ClassLevel(CharacterClass.ROGUE, 2)),
+        )
+
+        assertEquals(listOf(3, 1), rangerRogue.skillChoices.map { it.count })
+        assertEquals(CharacterClass.ROGUE.proficiencies.startingSkills.options, rangerRogue.skillChoices[1].options)
+    }
+
+    @Test
+    fun `multiclassing into a class without skills offers none`() {
+        val clericWizard = character(
+            classes = listOf(ClassLevel(CharacterClass.CLERIC, 5), ClassLevel(CharacterClass.WIZARD, 1)),
+        )
+
+        assertEquals(SkillChoice.NONE, clericWizard.skillChoices[1])
+    }
 }
