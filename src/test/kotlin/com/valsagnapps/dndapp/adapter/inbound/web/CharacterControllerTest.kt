@@ -8,6 +8,7 @@ import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
 import com.valsagnapps.dndapp.domain.abilityScores
+import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.hasItem
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -66,6 +67,12 @@ class CharacterControllerTest {
             jsonPath("$.skills.ATHLETICS.bonus") { value(3) }
             jsonPath("$.skills.length()") { value(18) }
             jsonPath("$.passivePerception") { value(10) }
+            jsonPath("$.classes[0].skillChoices.count") { value(2) }
+            jsonPath("$.classes[0].skillChoices.options.length()") { value(8) }
+            jsonPath("$.proficiencies.armor") { value(contains("LIGHT", "MEDIUM", "HEAVY", "SHIELDS")) }
+            jsonPath("$.proficiencies.weapons") { value(contains("SIMPLE", "MARTIAL")) }
+            jsonPath("$.proficiencies.tools") { isEmpty() }
+            jsonPath("$.proficiencies.toolChoices") { isEmpty() }
         }
     }
 
@@ -214,6 +221,34 @@ class CharacterControllerTest {
             jsonPath("$.hitDice[1].die") { value(8) }
             jsonPath("$.hitDice[1].count") { value(2) }
             jsonPath("$.savingThrows.INTELLIGENCE.proficiency") { value("NONE") }
+            jsonPath("$.classes[0].skillChoices.count") { value(3) }
+            jsonPath("$.classes[1].skillChoices.count") { value(1) }
+            jsonPath("$.classes[1].skillChoices.options.length()") { value(11) }
+            jsonPath("$.proficiencies.armor") { value(contains("LIGHT", "MEDIUM", "SHIELDS")) }
+            jsonPath("$.proficiencies.tools") { value(contains("THIEVES_TOOLS")) }
+        }
+    }
+
+    @Test
+    fun `returns the tool choices of the classes`() {
+        mockMvc.post("/api/v1/characters") {
+            contentType = MediaType.APPLICATION_JSON
+            content =
+                validRequest(
+                    name = "Lidda",
+                    level = 0,
+                    strength = 10,
+                    classes = """[{ "class": "BARD", "level": 1 }]""",
+                )
+        }.andExpect {
+            status { isCreated() }
+            jsonPath("$.classes[0].skillChoices.count") { value(3) }
+            jsonPath("$.classes[0].skillChoices.options.length()") { value(18) }
+            jsonPath("$.proficiencies.weapons") {
+                value(contains("SIMPLE", "HAND_CROSSBOW", "LONGSWORD", "RAPIER", "SHORTSWORD"))
+            }
+            jsonPath("$.proficiencies.toolChoices[0].count") { value(3) }
+            jsonPath("$.proficiencies.toolChoices[0].options") { value(contains("MUSICAL_INSTRUMENT")) }
         }
     }
 
