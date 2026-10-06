@@ -35,6 +35,23 @@ data class Character(
             .mapValues { (_, levels) -> levels.sumOf { it.level } }
             .toSortedMap(reverseOrder())
 
+    // La clase inicial da sus competencias completas; las que se suman por multiclase, las reducidas.
+    val proficiencies: Proficiencies
+        get() = classProficiencies.map { (isStarting, granted) ->
+            if (isStarting) granted.starting else granted.multiclass
+        }
+            .reduce(Proficiencies::plus)
+
+    // Skills a elegir por cada clase, en el mismo orden que `classes`. Solo sugerencia: no se valida.
+    val skillChoices: List<SkillChoice>
+        get() = classProficiencies.map { (isStarting, granted) ->
+            if (isStarting) granted.startingSkills else granted.multiclassSkills
+        }
+
+    // Competencias de cada clase, marcando cuál es la inicial.
+    private val classProficiencies: List<Pair<Boolean, ClassProficiencies>>
+        get() = classes.mapIndexed { index, classLevel -> (index == 0) to classLevel.characterClass.proficiencies }
+
     fun savingThrowProficiency(ability: Ability): Proficiency =
         if (ability in classes.first().characterClass.savingThrows) Proficiency.PROFICIENT else Proficiency.NONE
 

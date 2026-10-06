@@ -4,12 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valsagnapps.dndapp.application.port.inbound.CreateCharacterCommand
 import com.valsagnapps.dndapp.domain.Ability
 import com.valsagnapps.dndapp.domain.AbilityScores
+import com.valsagnapps.dndapp.domain.ArmorProficiency
 import com.valsagnapps.dndapp.domain.Character
 import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.ClassLevel
+import com.valsagnapps.dndapp.domain.Proficiencies
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
+import com.valsagnapps.dndapp.domain.SkillChoice
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.ToolCategory
+import com.valsagnapps.dndapp.domain.ToolChoice
+import com.valsagnapps.dndapp.domain.ToolProficiency
+import com.valsagnapps.dndapp.domain.WeaponProficiency
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -78,11 +85,41 @@ data class SkillResponse(val ability: Ability, val proficiency: Proficiency, val
 
 data class SavingThrowResponse(val proficiency: Proficiency, val bonus: Int)
 
+// Skills que ofrece la clase (sugerencia, no se valida). Las opciones van en el orden de los enums.
+data class SkillChoiceResponse(val count: Int, val options: List<Skill>) {
+    companion object {
+        fun from(choice: SkillChoice) = SkillChoiceResponse(choice.count, choice.options.sorted())
+    }
+}
+
 data class ClassLevelResponse(
     @get:JsonProperty("class") val characterClass: CharacterClass,
     val level: Int,
     val hitDie: Int,
+    val skillChoices: SkillChoiceResponse,
 )
+
+data class ToolChoiceResponse(val count: Int, val options: List<ToolCategory>) {
+    companion object {
+        fun from(choice: ToolChoice) = ToolChoiceResponse(choice.count, choice.options.sorted())
+    }
+}
+
+data class ProficienciesResponse(
+    val armor: List<ArmorProficiency>,
+    val weapons: List<WeaponProficiency>,
+    val tools: List<ToolProficiency>,
+    val toolChoices: List<ToolChoiceResponse>,
+) {
+    companion object {
+        fun from(proficiencies: Proficiencies) = ProficienciesResponse(
+            armor = proficiencies.armor.sorted(),
+            weapons = proficiencies.weapons.sorted(),
+            tools = proficiencies.tools.sorted(),
+            toolChoices = proficiencies.toolChoices.map { ToolChoiceResponse.from(it) },
+        )
+    }
+}
 
 data class HitDiceResponse(val die: Int, val count: Int)
 
@@ -98,17 +135,19 @@ data class CharacterResponse(
     val savingThrows: Map<Ability, SavingThrowResponse>,
     val skills: Map<Skill, SkillResponse>,
     val passivePerception: Int,
+    val proficiencies: ProficienciesResponse,
 ) {
     companion object {
         fun from(character: Character) = CharacterResponse(
             id = character.id.value,
             name = character.name,
             level = character.level,
-            classes = character.classes.map {
+            classes = character.classes.zip(character.skillChoices) { classLevel, skillChoice ->
                 ClassLevelResponse(
-                    characterClass = it.characterClass,
-                    level = it.level,
-                    hitDie = it.characterClass.hitDie,
+                    characterClass = classLevel.characterClass,
+                    level = classLevel.level,
+                    hitDie = classLevel.characterClass.hitDie,
+                    skillChoices = SkillChoiceResponse.from(skillChoice),
                 )
             },
             proficiencyBonus = character.proficiencyBonus,
@@ -134,6 +173,7 @@ data class CharacterResponse(
                 )
             },
             passivePerception = character.passivePerception,
+            proficiencies = ProficienciesResponse.from(character.proficiencies),
         )
     }
 }

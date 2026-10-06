@@ -46,4 +46,13 @@ scripts:
         pm.expect(body.skills.PERCEPTION.bonus).to.equal(7);
         pm.expect(body.passivePerception).to.equal(17);
       });
+
+      pm.test("character has the proficiencies of its class", function () {
+        pm.expect(body.classes[0].skillChoices.count).to.equal(2);
+        pm.expect(body.classes[0].skillChoices.options).to.include("ATHLETICS");
+        pm.expect(body.proficiencies.armor).to.eql(["LIGHT", "MEDIUM", "HEAVY", "SHIELDS"]);
+        pm.expect(body.proficiencies.weapons).to.eql(["SIMPLE", "MARTIAL"]);
+        pm.expect(body.proficiencies.tools).to.eql([]);
+        pm.expect(body.proficiencies.toolChoices).to.eql([]);
+      });
 order: 20

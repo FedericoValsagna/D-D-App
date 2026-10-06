@@ -65,8 +65,10 @@ Reglas:
 - Cada elemento del catálogo lleva su `Source` (libro). Por ahora solo `PHB`; sumar un libro = agregar entradas, no cambiar la estructura.
 - Textos: el contenido del SRD puede ir completo; lo que no es SRD (la mayoría de las subclases del PHB) va con mecánica completa y un resumen propio, nunca el texto literal del libro.
 - **Multiclase desde el modelo**: `Character.classes` es una lista de `ClassLevel` (sin clases repetidas, suma de niveles 1–20). La primera es la clase inicial: es la que da las salvaciones. `level` se calcula como la suma; la app hoy permite una sola clase.
+- **Competencias de clase** (`ClassProficiencies`): armaduras, armas y herramientas se **calculan** de las clases, no se persisten. La clase inicial da las completas; las demás, las reducidas de multiclase (tabla del PHB). Las armas sueltas que ya cubre `SIMPLE`/`MARTIAL` se descartan al sumar. Las elecciones de herramientas (instrumentos del Bard, artisan's tools del Monk) se exponen como `ToolChoice` (cantidad + grupos), sin guardar qué eligió el jugador.
+- **Skills de clase: solo sugerencia.** Cada clase expone su `SkillChoice` (cantidad y opciones; en multiclase, la reducida). No se valida contra las skills marcadas: trasfondo, raza y dotes también dan skills y todavía no están modeladas.
 - El HP máximo se carga a mano (promedio o dados, lo decide el jugador): se persiste, no se calcula.
-- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase · 3) subclases (un personaje puede no tener subclase aunque tenga el nivel) · 4) features por nivel · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
+- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase (hecho) · 3) subclases (un personaje puede no tener subclase aunque tenga el nivel) · 4) features por nivel · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
 
 ## Testing
 

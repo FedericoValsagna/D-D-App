@@ -7,7 +7,8 @@ import com.valsagnapps.dndapp.domain.Ability.INTELLIGENCE
 import com.valsagnapps.dndapp.domain.Ability.STRENGTH
 import com.valsagnapps.dndapp.domain.Ability.WISDOM
 
-// Clases del PHB 2014: dado de golpe y tiradas de salvación con competencia.
+// Clases del PHB 2014: dado de golpe, tiradas de salvación con competencia y demás competencias
+// (ver ClassProficiencies).
 @Suppress("MagicNumber")
 enum class CharacterClass(val hitDie: Int, val savingThrows: Set<Ability>, val source: Source = Source.PHB) {
     BARBARIAN(12, setOf(STRENGTH, CONSTITUTION)),
@@ -22,4 +23,8 @@ enum class CharacterClass(val hitDie: Int, val savingThrows: Set<Ability>, val s
     SORCERER(6, setOf(CONSTITUTION, CHARISMA)),
     WARLOCK(8, setOf(WISDOM, CHARISMA)),
     WIZARD(6, setOf(INTELLIGENCE, WISDOM)),
+    ;
+
+    val proficiencies: ClassProficiencies
+        get() = CLASS_PROFICIENCIES.getValue(this)
 }
