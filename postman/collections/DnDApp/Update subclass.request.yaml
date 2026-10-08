@@ -1,0 +1,26 @@
+$kind: http-request
+name: Update subclass
+url: "{{baseUrl}}/api/v1/characters/{{characterId}}/classes/{{characterClass}}/subclass"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "subclass": "CHAMPION"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const body = pm.response.json();
+
+      pm.test("subclass chosen", function () {
+        pm.response.to.have.status(200);
+        const fighter = body.classes.find(c => c.class === "FIGHTER");
+        pm.expect(fighter.subclassLevel).to.equal(3);
+        pm.expect(fighter.subclass.id).to.equal("CHAMPION");
+        pm.expect(fighter.subclass.name).to.equal("Champion");
+      });
+order: 55

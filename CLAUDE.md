@@ -67,8 +67,10 @@ Reglas:
 - **Multiclase desde el modelo**: `Character.classes` es una lista de `ClassLevel` (sin clases repetidas, suma de niveles 1–20). La primera es la clase inicial: es la que da las salvaciones. `level` se calcula como la suma; la app hoy permite una sola clase.
 - **Competencias de clase** (`ClassProficiencies`): armaduras, armas y herramientas se **calculan** de las clases, no se persisten. La clase inicial da las completas; las demás, las reducidas de multiclase (tabla del PHB). Las armas sueltas que ya cubre `SIMPLE`/`MARTIAL` se descartan al sumar. Las elecciones de herramientas (instrumentos del Bard, artisan's tools del Monk) se exponen como `ToolChoice` (cantidad + grupos), sin guardar qué eligió el jugador.
 - **Skills de clase: solo sugerencia.** Cada clase expone su `SkillChoice` (cantidad y opciones; en multiclase, la reducida). No se valida contra las skills marcadas: trasfondo, raza y dotes también dan skills y todavía no están modeladas.
+- **Subclases** (`Subclass`): opcionales por `ClassLevel` (puede no tener aunque tenga el nivel); se eligen desde `CharacterClass.subclassLevel` (Cleric/Sorcerer/Warlock 1, Druid/Wizard 2, el resto 3). Elegir una de otra clase o por debajo del nivel es 400. Al reemplazar las clases (`Character.withClasses`) la subclase se conserva si la clase sigue y le alcanza el nivel; si cambia la clase o baja del nivel, **el server la borra sola** (decisión del usuario: sin pasos extra en la app).
+- El catálogo se expone en `GET /api/v1/classes` (clases con nivel de subclase y subclases, con nombre y `Source`) para que la app no duplique reglas.
 - El HP máximo se carga a mano (promedio o dados, lo decide el jugador): se persiste, no se calcula.
-- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase (hecho) · 3) subclases (un personaje puede no tener subclase aunque tenga el nivel) · 4) features por nivel · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
+- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase (hecho) · 3) subclases (hecho) · 4) features por nivel · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
 
 ## Testing
 

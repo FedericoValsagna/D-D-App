@@ -7,6 +7,7 @@ import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.Subclass
 import com.valsagnapps.dndapp.domain.abilityScores
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -103,6 +104,33 @@ class CharacterServiceTest {
 
         assertEquals(newClasses, updated.classes)
         assertEquals(created.copy(classes = newClasses), repository.findById(created.id))
+    }
+
+    @Test
+    fun `keeps the subclass of the classes that stay`() {
+        val created = service.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC, level = 4))
+        service.updateSubclass(created.id, CharacterClass.CLERIC, Subclass.LIFE)
+
+        val updated = service.updateClasses(created.id, listOf(ClassLevel(CharacterClass.CLERIC, 5)))
+
+        assertEquals(ClassLevel(CharacterClass.CLERIC, 5, Subclass.LIFE), updated.classes.single())
+    }
+
+    @Test
+    fun `chooses the subclass of a class`() {
+        val created = service.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC, level = 4))
+
+        val updated = service.updateSubclass(created.id, CharacterClass.CLERIC, Subclass.LIFE)
+
+        assertEquals(Subclass.LIFE, updated.classes.single().subclass)
+        assertEquals(updated, repository.findById(created.id))
+    }
+
+    @Test
+    fun `fails to update the subclass when the character does not exist`() {
+        assertFailsWith<CharacterNotFoundException> {
+            service.updateSubclass(CharacterId.new(), CharacterClass.CLERIC, Subclass.LIFE)
+        }
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.Subclass
 import com.valsagnapps.dndapp.domain.abilityScores
 import com.valsagnapps.dndapp.domain.character
 import jakarta.persistence.EntityManager
@@ -122,6 +123,34 @@ class CharacterPersistenceAdapterTest {
         entityManager.clear()
 
         val updated = character.copy(classes = listOf(ClassLevel(CharacterClass.RANGER, 5)), maxHitPoints = 42)
+        adapter.save(updated)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(updated, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `saves and loads subclasses`() {
+        val character = character(
+            classes = listOf(ClassLevel(CharacterClass.CLERIC, 5, Subclass.LIFE), ClassLevel(CharacterClass.WIZARD, 1)),
+        )
+
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        assertEquals(character, adapter.findById(character.id))
+    }
+
+    @Test
+    fun `removes the subclass when saving an existing character without it`() {
+        val character = character(classes = listOf(ClassLevel(CharacterClass.FIGHTER, 3, Subclass.CHAMPION)))
+        adapter.save(character)
+        entityManager.flush()
+        entityManager.clear()
+
+        val updated = character.withSubclass(CharacterClass.FIGHTER, null)
         adapter.save(updated)
         entityManager.flush()
         entityManager.clear()

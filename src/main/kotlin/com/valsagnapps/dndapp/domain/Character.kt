@@ -52,6 +52,23 @@ data class Character(
     private val classProficiencies: List<Pair<Boolean, ClassProficiencies>>
         get() = classes.mapIndexed { index, classLevel -> (index == 0) to classLevel.characterClass.proficiencies }
 
+    // Reemplaza las clases conservando la subclase de las que siguen con nivel para tenerla:
+    // si una clase cambia o baja del nivel de subclase, la subclase se borra.
+    fun withClasses(newClasses: List<ClassLevel>): Character = copy(
+        classes = newClasses.map { new ->
+            val kept = classes.find { it.characterClass == new.characterClass }?.subclass
+            new.copy(subclass = new.subclass ?: kept?.takeIf { new.canHaveSubclass })
+        },
+    )
+
+    // Elige (o quita, con null) la subclase de una de sus clases.
+    fun withSubclass(characterClass: CharacterClass, subclass: Subclass?): Character {
+        require(classes.any { it.characterClass == characterClass }) { "the character has no $characterClass levels" }
+        return copy(
+            classes = classes.map { if (it.characterClass == characterClass) it.copy(subclass = subclass) else it },
+        )
+    }
+
     fun savingThrowProficiency(ability: Ability): Proficiency =
         if (ability in classes.first().characterClass.savingThrows) Proficiency.PROFICIENT else Proficiency.NONE
 

@@ -7,6 +7,7 @@ import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.Subclass
 import com.valsagnapps.dndapp.domain.abilityScores
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.hasItem
@@ -73,6 +74,8 @@ class CharacterControllerTest {
             jsonPath("$.proficiencies.weapons") { value(contains("SIMPLE", "MARTIAL")) }
             jsonPath("$.proficiencies.tools") { isEmpty() }
             jsonPath("$.proficiencies.toolChoices") { isEmpty() }
+            jsonPath("$.classes[0].subclassLevel") { value(3) }
+            jsonPath("$.classes[0].subclass") { value(null as Any?) }
         }
     }
 
@@ -340,6 +343,66 @@ class CharacterControllerTest {
         mockMvc.put("/api/v1/characters/{id}/classes", UUID.randomUUID()) {
             contentType = MediaType.APPLICATION_JSON
             content = """{ "classes": [{ "class": "BARD", "level": 1 }] }"""
+        }.andExpect {
+            status { isNotFound() }
+        }
+    }
+
+    @Test
+    fun `chooses the subclass of a class`() {
+        val character = characterService.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC))
+
+        mockMvc.put("/api/v1/characters/{id}/classes/CLERIC/subclass", character.id.value) {
+            contentType = MediaType.APPLICATION_JSON
+            content = """{ "subclass": "LIFE" }"""
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.classes[0].subclassLevel") { value(1) }
+            jsonPath("$.classes[0].subclass.id") { value("LIFE") }
+            jsonPath("$.classes[0].subclass.name") { value("Life Domain") }
+            jsonPath("$.classes[0].subclass.source") { value("PHB") }
+        }
+    }
+
+    @Test
+    fun `removes the subclass of a class`() {
+        val character = characterService.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC))
+        characterService.updateSubclass(character.id, CharacterClass.CLERIC, Subclass.LIFE)
+
+        mockMvc.put("/api/v1/characters/{id}/classes/CLERIC/subclass", character.id.value) {
+            contentType = MediaType.APPLICATION_JSON
+            content = """{ "subclass": null }"""
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.classes[0].subclass") { value(null as Any?) }
+        }
+    }
+
+    @Test
+    fun `rejects invalid subclasses`() {
+        val character = characterService.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC))
+        val invalid = listOf(
+            "CLERIC" to """{ "subclass": "CHAMPION" }""",
+            "FIGHTER" to """{ "subclass": "CHAMPION" }""",
+            "CLERIC" to """{ "subclass": "UNKNOWN" }""",
+            "UNKNOWN" to """{ "subclass": "LIFE" }""",
+        )
+
+        invalid.forEach { (characterClass, body) ->
+            mockMvc.put("/api/v1/characters/{id}/classes/{class}/subclass", character.id.value, characterClass) {
+                contentType = MediaType.APPLICATION_JSON
+                content = body
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+    }
+
+    @Test
+    fun `returns 404 when updating the subclass of a character that does not exist`() {
+        mockMvc.put("/api/v1/characters/{id}/classes/CLERIC/subclass", UUID.randomUUID()) {
+            contentType = MediaType.APPLICATION_JSON
+            content = """{ "subclass": "LIFE" }"""
         }.andExpect {
             status { isNotFound() }
         }

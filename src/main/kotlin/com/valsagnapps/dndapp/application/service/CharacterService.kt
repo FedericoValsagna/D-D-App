@@ -7,12 +7,15 @@ import com.valsagnapps.dndapp.application.port.inbound.ListCharactersUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateClassesUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateHitPointsUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateSkillsUseCase
+import com.valsagnapps.dndapp.application.port.inbound.UpdateSubclassUseCase
 import com.valsagnapps.dndapp.application.port.outbound.CharacterRepository
 import com.valsagnapps.dndapp.domain.Character
+import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.CharacterId
 import com.valsagnapps.dndapp.domain.CharacterNotFoundException
 import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.Subclass
 
 class CharacterService(private val characterRepository: CharacterRepository) :
     CreateCharacterUseCase,
@@ -20,6 +23,7 @@ class CharacterService(private val characterRepository: CharacterRepository) :
     ListCharactersUseCase,
     UpdateSkillsUseCase,
     UpdateClassesUseCase,
+    UpdateSubclassUseCase,
     UpdateHitPointsUseCase {
     override fun create(command: CreateCharacterCommand): Character = characterRepository.save(
         Character(
@@ -41,7 +45,10 @@ class CharacterService(private val characterRepository: CharacterRepository) :
         characterRepository.save(get(id).copy(skillProficiencies = skillProficiencies))
 
     override fun updateClasses(id: CharacterId, classes: List<ClassLevel>): Character =
-        characterRepository.save(get(id).copy(classes = classes))
+        characterRepository.save(get(id).withClasses(classes))
+
+    override fun updateSubclass(id: CharacterId, characterClass: CharacterClass, subclass: Subclass?): Character =
+        characterRepository.save(get(id).withSubclass(characterClass, subclass))
 
     override fun updateMaxHitPoints(id: CharacterId, maxHitPoints: Int): Character =
         characterRepository.save(get(id).copy(maxHitPoints = maxHitPoints))
