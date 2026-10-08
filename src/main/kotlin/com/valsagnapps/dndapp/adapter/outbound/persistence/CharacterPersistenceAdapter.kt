@@ -28,13 +28,13 @@ private fun Character.toEntity() = CharacterEntity(
     charisma = abilityScores.charisma,
     maxHitPoints = maxHitPoints,
     skills = skillProficiencies.toMap().toMutableMap(),
-    classes = classes.map { ClassLevelEmbeddable(it.characterClass, it.level) }.toMutableList(),
+    classes = classes.map { ClassLevelEmbeddable(it.characterClass, it.level, it.subclass) }.toMutableList(),
 )
 
 private fun CharacterEntity.toDomain() = Character(
     id = CharacterId(id),
     name = name,
-    classes = classes.map { ClassLevel(it.characterClass, it.level) },
+    classes = classes.map { ClassLevel(it.characterClass, it.level, it.subclass) },
     abilityScores = AbilityScores(strength, dexterity, constitution, intelligence, wisdom, charisma),
     maxHitPoints = maxHitPoints,
     skillProficiencies = SkillProficiencies.of(skills),
