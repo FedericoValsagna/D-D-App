@@ -6,6 +6,8 @@ import com.valsagnapps.dndapp.application.port.inbound.ListCharactersUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateClassesUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateHitPointsUseCase
 import com.valsagnapps.dndapp.application.port.inbound.UpdateSkillsUseCase
+import com.valsagnapps.dndapp.application.port.inbound.UpdateSubclassUseCase
+import com.valsagnapps.dndapp.domain.CharacterClass
 import com.valsagnapps.dndapp.domain.CharacterId
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -27,6 +29,7 @@ class CharacterController(
     private val listCharacters: ListCharactersUseCase,
     private val updateSkills: UpdateSkillsUseCase,
     private val updateClasses: UpdateClassesUseCase,
+    private val updateSubclass: UpdateSubclassUseCase,
     private val updateHitPoints: UpdateHitPointsUseCase,
 ) {
     @PostMapping
@@ -47,6 +50,14 @@ class CharacterController(
     @PutMapping("/{id}/classes")
     fun updateClasses(@PathVariable id: UUID, @Valid @RequestBody request: UpdateClassesRequest): CharacterResponse =
         CharacterResponse.from(updateClasses.updateClasses(CharacterId(id), request.toDomain()))
+
+    @PutMapping("/{id}/classes/{characterClass}/subclass")
+    fun updateSubclass(
+        @PathVariable id: UUID,
+        @PathVariable characterClass: CharacterClass,
+        @RequestBody request: UpdateSubclassRequest,
+    ): CharacterResponse =
+        CharacterResponse.from(updateSubclass.updateSubclass(CharacterId(id), characterClass, request.subclass))
 
     @PutMapping("/{id}/hit-points")
     fun updateHitPoints(

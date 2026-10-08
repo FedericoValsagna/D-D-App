@@ -13,6 +13,8 @@ import com.valsagnapps.dndapp.domain.Proficiency
 import com.valsagnapps.dndapp.domain.Skill
 import com.valsagnapps.dndapp.domain.SkillChoice
 import com.valsagnapps.dndapp.domain.SkillProficiencies
+import com.valsagnapps.dndapp.domain.Source
+import com.valsagnapps.dndapp.domain.Subclass
 import com.valsagnapps.dndapp.domain.ToolCategory
 import com.valsagnapps.dndapp.domain.ToolChoice
 import com.valsagnapps.dndapp.domain.ToolProficiency
@@ -59,6 +61,9 @@ data class UpdateClassesRequest(@field:NotEmpty @field:Valid val classes: List<C
     fun toDomain() = classes.map { it.toDomain() }
 }
 
+// Elige la subclase de una clase; null (o sin el campo) la quita.
+data class UpdateSubclassRequest(val subclass: Subclass? = null)
+
 data class UpdateHitPointsRequest(@field:Min(MIN_HIT_POINTS) @field:Max(MAX_HIT_POINTS) val maxHitPoints: Int)
 
 data class ClassLevelDto(
@@ -92,11 +97,20 @@ data class SkillChoiceResponse(val count: Int, val options: List<Skill>) {
     }
 }
 
+data class SubclassResponse(val id: Subclass, val name: String, val source: Source) {
+    companion object {
+        fun from(subclass: Subclass) = SubclassResponse(subclass, subclass.displayName, subclass.source)
+    }
+}
+
 data class ClassLevelResponse(
     @get:JsonProperty("class") val characterClass: CharacterClass,
     val level: Int,
     val hitDie: Int,
     val skillChoices: SkillChoiceResponse,
+    // Nivel de clase en que se elige la subclase; subclass es null si todavía no eligió.
+    val subclassLevel: Int,
+    val subclass: SubclassResponse?,
 )
 
 data class ToolChoiceResponse(val count: Int, val options: List<ToolCategory>) {
@@ -148,6 +162,8 @@ data class CharacterResponse(
                     level = classLevel.level,
                     hitDie = classLevel.characterClass.hitDie,
                     skillChoices = SkillChoiceResponse.from(skillChoice),
+                    subclassLevel = classLevel.characterClass.subclassLevel,
+                    subclass = classLevel.subclass?.let { SubclassResponse.from(it) },
                 )
             },
             proficiencyBonus = character.proficiencyBonus,
