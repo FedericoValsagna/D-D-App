@@ -72,7 +72,7 @@ Reglas:
 - Texto SRD: se toma de una fuente del SRD 5.1 (la API `dnd5eapi.co/api/2014`), nunca de memoria. Las opciones a elegir (Fighting Style, Hunter's Prey, ...) van dentro del texto de la feature que las agrupa.
 - El catálogo se expone en `GET /api/v1/classes` (clases con nivel de subclase y subclases, con nombre y `Source`) para que la app no duplique reglas.
 - El HP máximo se carga a mano (promedio o dados, lo decide el jugador): se persiste, no se calcula.
-- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase (hecho) · 3) subclases (hecho) · 4) features por nivel (en curso: Cleric/Life y Ranger/Hunter cargados) · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
+- Plan de clases por slices (un PR por slice): 1) clase base, HP y salvaciones (hecho) · 2) competencias de clase (hecho) · 3) subclases (hecho) · 4) features por nivel (en curso: Cleric con Life y Nature, Ranger con Hunter) · 5) spellcasting · 6) multiclase en la UI · 7) recursos con usos y descansos (las features tienen id estable para colgarlos).
 
 ## Testing
 

@@ -12,5 +12,6 @@ internal val CLASS_FEATURES: Map<CharacterClass, List<ClassFeature>> = mapOf(
 
 internal val SUBCLASS_FEATURES: Map<Subclass, List<ClassFeature>> = mapOf(
     Subclass.LIFE to LIFE_FEATURES,
+    Subclass.NATURE to NATURE_FEATURES,
     Subclass.HUNTER to HUNTER_FEATURES,
 )

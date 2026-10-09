@@ -2,7 +2,7 @@ package com.valsagnapps.dndapp.domain.features
 
 import com.valsagnapps.dndapp.domain.ClassFeature
 
-// Cleric y Life Domain: textos del SRD 5.1 y resúmenes propios.
+// Cleric y sus dominios. Cleric y Life Domain son SRD: llevan el texto del SRD 5.1 además del resumen propio.
 internal val CLERIC_FEATURES = listOf(
     ClassFeature(
         id = "CLERIC_SPELLCASTING",
@@ -178,5 +178,51 @@ internal val LIFE_FEATURES = listOf(
         "Starting at 17th level, when you would normally roll one or more dice to restore hit points with a " +
             "spell, you instead use the highest number possible for each die. For example, instead of restoring 2d6 " +
             "hit points to a creature, you restore 12.",
+    ),
+)
+
+// Nature Domain no es SRD: solo resúmenes propios.
+internal val NATURE_FEATURES = listOf(
+    ClassFeature(
+        id = "NATURE_ACOLYTE_OF_NATURE",
+        name = "Acolyte of Nature",
+        level = 1,
+        summary = "Learn one druid cantrip, which counts as a cleric cantrip, and gain proficiency in one skill: " +
+            "Animal Handling, Nature or Survival.",
+    ),
+    ClassFeature(
+        id = "NATURE_BONUS_PROFICIENCY",
+        name = "Bonus Proficiency",
+        level = 1,
+        summary = "Proficiency with heavy armor.",
+    ),
+    ClassFeature(
+        id = "NATURE_CHARM_ANIMALS_AND_PLANTS",
+        name = "Channel Divinity: Charm Animals and Plants",
+        level = 2,
+        summary = "Action: each beast or plant creature within 30 ft that can see you makes a Wisdom save. On a " +
+            "failure it is charmed by you for 1 minute or until it takes damage, and is friendly to you and the " +
+            "creatures you choose.",
+    ),
+    ClassFeature(
+        id = "NATURE_DAMPEN_ELEMENTS",
+        name = "Dampen Elements",
+        level = 6,
+        summary = "Reaction: when you or a creature within 30 ft takes acid, cold, fire, lightning or thunder " +
+            "damage, grant resistance against that damage.",
+    ),
+    ClassFeature(
+        id = "NATURE_DIVINE_STRIKE",
+        name = "Divine Strike",
+        level = 8,
+        summary = "Once on each of your turns, a weapon hit deals an extra 1d8 cold, fire or lightning damage (your " +
+            "choice), 2d8 from 14th level.",
+    ),
+    ClassFeature(
+        id = "NATURE_MASTER_OF_NATURE",
+        name = "Master of Nature",
+        level = 17,
+        summary = "Bonus action: command the creatures charmed by your Charm Animals and Plants, telling each one " +
+            "what it does on its next turn.",
     ),
 )
