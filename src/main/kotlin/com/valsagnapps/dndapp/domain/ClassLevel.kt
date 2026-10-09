@@ -16,4 +16,11 @@ data class ClassLevel(val characterClass: CharacterClass, val level: Int, val su
 
     val canHaveSubclass: Boolean
         get() = level >= characterClass.subclassLevel
+
+    // Features ganadas hasta este nivel de clase, de la clase y de la subclase, ordenadas por nivel
+    // (a igual nivel, primero las de la clase).
+    val features: List<ClassFeature>
+        get() = (characterClass.features + subclass?.features.orEmpty())
+            .filter { it.level <= level }
+            .sortedBy { it.level }
 }
