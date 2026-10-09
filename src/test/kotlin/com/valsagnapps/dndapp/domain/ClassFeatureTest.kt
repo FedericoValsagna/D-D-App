@@ -2,6 +2,7 @@ package com.valsagnapps.dndapp.domain
 
 import com.valsagnapps.dndapp.domain.CharacterClass.CLERIC
 import com.valsagnapps.dndapp.domain.CharacterClass.FIGHTER
+import com.valsagnapps.dndapp.domain.CharacterClass.RANGER
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.Test
@@ -46,9 +47,11 @@ class ClassFeatureTest {
     }
 
     @Test
-    fun `cleric has its features loaded`() {
+    fun `cleric and ranger have their features loaded`() {
         assertEquals(6, CLERIC.features.size)
+        assertEquals(12, RANGER.features.size)
         assertEquals(6, Subclass.LIFE.features.size)
+        assertEquals(4, Subclass.HUNTER.features.size)
     }
 
     @Test
@@ -91,10 +94,10 @@ class ClassFeatureTest {
 
     @Test
     fun `a class level at 20 has every feature of its class and subclass`() {
-        val features = ClassLevel(CLERIC, 20, Subclass.LIFE).features
+        val features = ClassLevel(RANGER, 20, Subclass.HUNTER).features
 
-        assertEquals(CLERIC.features.size + Subclass.LIFE.features.size, features.size)
-        assertEquals("LIFE_SUPREME_HEALING", features.last().id)
+        assertEquals(RANGER.features.size + Subclass.HUNTER.features.size, features.size)
+        assertEquals("RANGER_FOE_SLAYER", features.last().id)
     }
 
     @Test
