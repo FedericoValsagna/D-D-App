@@ -7,6 +7,7 @@ import com.valsagnapps.dndapp.domain.AbilityScores
 import com.valsagnapps.dndapp.domain.ArmorProficiency
 import com.valsagnapps.dndapp.domain.Character
 import com.valsagnapps.dndapp.domain.CharacterClass
+import com.valsagnapps.dndapp.domain.ClassFeature
 import com.valsagnapps.dndapp.domain.ClassLevel
 import com.valsagnapps.dndapp.domain.Proficiencies
 import com.valsagnapps.dndapp.domain.Proficiency
@@ -103,6 +104,27 @@ data class SubclassResponse(val id: Subclass, val name: String, val source: Sour
     }
 }
 
+// Feature ganada: la app muestra el resumen; srdText (texto completo del SRD) es null si no es SRD.
+data class ClassFeatureResponse(
+    val id: String,
+    val name: String,
+    val level: Int,
+    val summary: String,
+    val srdText: String?,
+    val source: Source,
+) {
+    companion object {
+        fun from(feature: ClassFeature) = ClassFeatureResponse(
+            id = feature.id,
+            name = feature.name,
+            level = feature.level,
+            summary = feature.summary,
+            srdText = feature.srdText,
+            source = feature.source,
+        )
+    }
+}
+
 data class ClassLevelResponse(
     @get:JsonProperty("class") val characterClass: CharacterClass,
     val level: Int,
@@ -111,6 +133,8 @@ data class ClassLevelResponse(
     // Nivel de clase en que se elige la subclase; subclass es null si todavía no eligió.
     val subclassLevel: Int,
     val subclass: SubclassResponse?,
+    // Features de la clase y la subclase ganadas hasta este nivel, ordenadas por nivel.
+    val features: List<ClassFeatureResponse>,
 )
 
 data class ToolChoiceResponse(val count: Int, val options: List<ToolCategory>) {
@@ -164,6 +188,7 @@ data class CharacterResponse(
                     skillChoices = SkillChoiceResponse.from(skillChoice),
                     subclassLevel = classLevel.characterClass.subclassLevel,
                     subclass = classLevel.subclass?.let { SubclassResponse.from(it) },
+                    features = classLevel.features.map { ClassFeatureResponse.from(it) },
                 )
             },
             proficiencyBonus = character.proficiencyBonus,
