@@ -76,6 +76,7 @@ class CharacterControllerTest {
             jsonPath("$.proficiencies.toolChoices") { isEmpty() }
             jsonPath("$.classes[0].subclassLevel") { value(3) }
             jsonPath("$.classes[0].subclass") { value(null as Any?) }
+            jsonPath("$.classes[0].features") { isArray() }
         }
     }
 
@@ -361,6 +362,26 @@ class CharacterControllerTest {
             jsonPath("$.classes[0].subclass.id") { value("LIFE") }
             jsonPath("$.classes[0].subclass.name") { value("Life Domain") }
             jsonPath("$.classes[0].subclass.source") { value("PHB") }
+        }
+    }
+
+    @Test
+    fun `returns the features of the class and subclass up to its level`() {
+        val character = characterService.create(createCommand("Jozan", characterClass = CharacterClass.CLERIC))
+
+        mockMvc.put("/api/v1/characters/{id}/classes/CLERIC/subclass", character.id.value) {
+            contentType = MediaType.APPLICATION_JSON
+            content = """{ "subclass": "LIFE" }"""
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.classes[0].features[*].id") {
+                value(contains("CLERIC_SPELLCASTING", "LIFE_BONUS_PROFICIENCY", "LIFE_DISCIPLE_OF_LIFE"))
+            }
+            jsonPath("$.classes[0].features[2].name") { value("Disciple of Life") }
+            jsonPath("$.classes[0].features[2].level") { value(1) }
+            jsonPath("$.classes[0].features[2].summary") { isNotEmpty() }
+            jsonPath("$.classes[0].features[2].srdText") { isNotEmpty() }
+            jsonPath("$.classes[0].features[2].source") { value("PHB") }
         }
     }
 

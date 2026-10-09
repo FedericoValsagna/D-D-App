@@ -6,6 +6,7 @@ import com.valsagnapps.dndapp.domain.Ability.DEXTERITY
 import com.valsagnapps.dndapp.domain.Ability.INTELLIGENCE
 import com.valsagnapps.dndapp.domain.Ability.STRENGTH
 import com.valsagnapps.dndapp.domain.Ability.WISDOM
+import com.valsagnapps.dndapp.domain.features.CLASS_FEATURES
 
 // Clases del PHB 2014: dado de golpe, tiradas de salvación con competencia, nivel en que se elige la subclase
 // y demás competencias (ver ClassProficiencies).
@@ -35,4 +36,8 @@ enum class CharacterClass(
 
     val subclasses: List<Subclass>
         get() = Subclass.entries.filter { it.characterClass == this }
+
+    // Features de la clase en orden de nivel (sin las de subclase).
+    val features: List<ClassFeature>
+        get() = CLASS_FEATURES[this].orEmpty()
 }

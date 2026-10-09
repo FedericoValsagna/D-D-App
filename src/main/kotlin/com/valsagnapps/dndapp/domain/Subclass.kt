@@ -12,9 +12,9 @@ import com.valsagnapps.dndapp.domain.CharacterClass.ROGUE
 import com.valsagnapps.dndapp.domain.CharacterClass.SORCERER
 import com.valsagnapps.dndapp.domain.CharacterClass.WARLOCK
 import com.valsagnapps.dndapp.domain.CharacterClass.WIZARD
+import com.valsagnapps.dndapp.domain.features.SUBCLASS_FEATURES
 
 // Subclases del PHB 2014, con el nombre del libro. Se eligen al llegar a CharacterClass.subclassLevel.
-// Sus features (con resúmenes propios: casi ninguna es SRD) llegan en el slice de features.
 enum class Subclass(val characterClass: CharacterClass, val displayName: String, val source: Source = Source.PHB) {
     BERSERKER(BARBARIAN, "Path of the Berserker"),
     TOTEM_WARRIOR(BARBARIAN, "Path of the Totem Warrior"),
@@ -56,4 +56,9 @@ enum class Subclass(val characterClass: CharacterClass, val displayName: String,
     ILLUSION(WIZARD, "School of Illusion"),
     NECROMANCY(WIZARD, "School of Necromancy"),
     TRANSMUTATION(WIZARD, "School of Transmutation"),
+    ;
+
+    // Features de la subclase en orden de nivel (casi ninguna es SRD: van con resumen propio).
+    val features: List<ClassFeature>
+        get() = SUBCLASS_FEATURES[this].orEmpty()
 }
